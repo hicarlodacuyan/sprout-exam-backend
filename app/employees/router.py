@@ -37,6 +37,16 @@ async def read_employees(
     employees = await services.get_all_employees(db)
     return employees
 
+@router.get("/{employee_id}")
+async def read_employee(
+    employee_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: auth_schemas.User = Depends(get_current_user)
+):
+    """Get a single employee by their ID (UUID)"""
+    employee = await services.get_employee(employee_id, db)
+    return employee
+
 @router.post("/")
 async def create_employee(
     request: schemas.EmployeeCreateRequest,

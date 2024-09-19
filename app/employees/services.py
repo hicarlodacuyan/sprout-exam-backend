@@ -19,6 +19,23 @@ async def get_contractual_employees(db: AsyncSession):
     employees = result.scalars().all()
     return [schemas.ContractualEmployee.model_validate(employee) for employee in employees]
 
+async def get_employee(employee_id: UUID, db: AsyncSession):
+    """Get a single employee by their ID (UUID)."""
+    # Check for RegularEmployee first
+    result = await db.execute(select(RegularEmployee).filter(RegularEmployee.id == employee_id))
+    employee = result.scalars().first()
+    if employee:
+        return schemas.RegularEmployee.model_validate(employee)
+
+    # Check for ContractualEmployee if not found in RegularEmployee
+    result = await db.execute(select(ContractualEmployee).filter(ContractualEmployee.id == employee_id))
+    employee = result.scalars().first()
+    if employee:
+        return schemas.ContractualEmployee.model_validate(employee)
+
+    # Raise an HTTPException if employee is not found in either table
+    raise HTTPException(status_code=404, detail="Employee not found")
+
 async def get_all_employees(db: AsyncSession):
     """Get all employees"""
     regular_employees = await get_regular_employees(db)
@@ -100,7 +117,7 @@ async def delete_regular_employee(employee_id: UUID, db: AsyncSession):
     if not existing_employee:
         raise HTTPException(status_code=404, detail="Regular Employee not found")
 
-    db.delete(existing_employee)
+    await db.delete(existing_employee)
     await db.commit()
 
     return {"detail": "Regular Employee deleted successfully"}
@@ -111,7 +128,7 @@ async def delete_contractual_employee(employee_id: UUID, db: AsyncSession):
     if not existing_employee:
         raise HTTPException(status_code=404, detail="Contractual Employee not found")
 
-    db.delete(existing_employee)
+    await db.delete(existing_employee)
     await db.commit()
 
     return {"detail": "Contractual Employee deleted successfully"}
