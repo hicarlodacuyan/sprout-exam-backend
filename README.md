@@ -21,7 +21,7 @@ Ensure that you have the following installed on your local machine:
 2. **Build & run the Docker image:**
 
    ```bash
-   docker-compose up --Build
+   docker-compose up --build
    ```
 3. **Run initial migrations:**
 
