@@ -10,8 +10,8 @@ services:
       - db
     volumes:
       - .:/app
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/sprout_db
+    env_file:
+      - .env
 
   db:
     image: postgres:13

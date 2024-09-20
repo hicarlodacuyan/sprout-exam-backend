@@ -8,12 +8,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from .services import get_user_by_username
 from app.database import get_db
-
 from app.auth import services
-
-SECRET_KEY = "secret"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from app.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -32,13 +28,13 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
 def verify_token(token: str):
     """Verify token and return token data."""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             return False

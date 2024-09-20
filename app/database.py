@@ -3,11 +3,12 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio.session import async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from app.config import settings
 
 Base = declarative_base()
 
 async_engine = create_async_engine(
-    "postgresql+asyncpg://postgres:password@db:5432/sprout_db", 
+    settings.DATABASE_URL, 
     future=True,
     echo=True,
 )
